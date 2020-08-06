@@ -24,7 +24,8 @@ def index(request):
 @csrf_exempt
 @login_required
 def compose(request):
-
+    #Print request to debug send mail function
+    print(request)
     # Composing a new email must be via POST
     if request.method != "POST":
         return JsonResponse({"error": "POST request required."}, status=400)
@@ -51,6 +52,9 @@ def compose(request):
     # Get contents of email
     subject = data.get("subject", "")
     body = data.get("body", "")
+
+    #Print body to debug send mail function
+    print(body)
 
     # Create one email for each recipient, plus sender
     users = set()

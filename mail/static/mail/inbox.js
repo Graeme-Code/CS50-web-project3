@@ -1,5 +1,8 @@
 document.addEventListener('DOMContentLoaded', function() {
 
+  //will this show? It does but only in incognito mode
+  console.log("Hello world!");
+
   // Use buttons to toggle between views
   document.querySelector('#inbox').addEventListener('click', () => load_mailbox('inbox'));
   document.querySelector('#sent').addEventListener('click', () => load_mailbox('sent'));
@@ -12,8 +15,8 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function compose_email() {
-//Will this appear
-  console.log("Hello world!");
+//Will this appear, it does! 
+  console.log("Compose Email Loaded!");
 
   // Show compose view and hide other views
   document.querySelector('#emails-view').style.display = 'none';
@@ -23,19 +26,32 @@ function compose_email() {
   document.querySelector('#compose-recipients').value = '';
   document.querySelector('#compose-subject').value = '';
   document.querySelector('#compose-body').value = '';
-  
+
+  //event listiner to send mail
+  document.getElementById("send-email").addEventListener('click',sendmail);
+ 
 }
 
-//send mail
-document.getElementById("send-email").addEventListener('click', 
-function(){ alert("Hello World!")});
-
-function send_email() {
-  //make API request with form values. 
-        console.log("hello");
-        alert ("Hello World!");
-    };
-  
+  function sendmail(){
+    console.log("running the send email function");
+    //debugger;
+    //code is breaking here
+            fetch('/emails', {
+              method: 'POST',
+              body: JSON.stringify({
+                  recipients: querySelector('#compose-recipients').value,
+                  subject: querySelector('#compose-subject').value,
+                  body: querySelector('#compose-body').value
+              })
+            }) 
+            .then(response => response.json())
+            .then(result => {
+                // Print result
+                console.log(result);
+                debugger;
+            })
+  }
+ 
 
 function load_mailbox(mailbox) {
   
