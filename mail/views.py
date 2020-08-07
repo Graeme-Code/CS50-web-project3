@@ -43,7 +43,9 @@ def compose(request):
     for email in emails:
         try:
             user = User.objects.get(email=email)
+            print(user)
             recipients.append(user)
+            print(recipients)
         except User.DoesNotExist:
             return JsonResponse({
                 "error": f"User with email {email} does not exist."

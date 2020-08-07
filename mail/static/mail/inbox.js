@@ -15,8 +15,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function compose_email() {
-//Will this appear, it does! 
-  console.log("Compose Email Loaded!");
 
   // Show compose view and hide other views
   document.querySelector('#emails-view').style.display = 'none';
@@ -28,21 +26,21 @@ function compose_email() {
   document.querySelector('#compose-body').value = '';
 
   //event listiner to send mail
-  document.getElementById("send-email").addEventListener('click',sendmail);
- 
+  document.getElementById("send-email").addEventListener('click', () => {
+    sendmail();
+    load_mailbox('sent');
+  });
+  
 }
 
   function sendmail(){
-    console.log("running the send email function");
-    //debugger;
-    //code is breaking here
             fetch('/emails', {
               method: 'POST',
               body: JSON.stringify({
-                  recipients: querySelector('#compose-recipients').value,
-                  subject: querySelector('#compose-subject').value,
-                  body: querySelector('#compose-body').value
-              })
+                  recipients: document.querySelector('#compose-recipients').value,
+                  subject: document.querySelector('#compose-subject').value,
+                  body: document.querySelector('#compose-body').value
+              }) 
             }) 
             .then(response => response.json())
             .then(result => {
@@ -50,6 +48,9 @@ function compose_email() {
                 console.log(result);
                 debugger;
             })
+            .catch((error) => {
+              console.error('Error:', error);
+         });
   }
  
 
@@ -61,4 +62,6 @@ function load_mailbox(mailbox) {
 
   // Show the mailbox name
   document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
+  console.log(mailbox);
+  debugger;
 }
