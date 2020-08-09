@@ -24,11 +24,13 @@ function compose_email() {
   document.querySelector('#compose-body').value = '';
 
   //event listner to send mail
-  document.getElementById("send-email").addEventListener('click', () => {
-    sendmail();
-    console.log("sent mail functioned called");
-    load_mailbox('sent');
-    });
+  document.getElementById("send-email").addEventListener('click', sendmail);
+  
+  //() => {
+    //sendmail();
+    //console.log("sent mail functioned called");
+    //load_mailbox('sent');
+   // });
   }
 
   function sendmail(){
@@ -45,6 +47,9 @@ function compose_email() {
             .then(result => {
                 console.log(result);
             })
+            .then(() => 
+             load_mailbox('sent')
+            )
             .catch((error) => {
               console.error('Error:', error);
          }); 
