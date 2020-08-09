@@ -1,8 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
 
-  //will this show? It does but only in incognito mode
-  console.log("Hello world!");
-
   // Use buttons to toggle between views
   document.querySelector('#inbox').addEventListener('click', () => load_mailbox('inbox'));
   document.querySelector('#sent').addEventListener('click', () => load_mailbox('sent'));
@@ -10,6 +7,7 @@ document.addEventListener('DOMContentLoaded', function() {
   document.querySelector('#compose').addEventListener('click', compose_email);
 
   // By default, load the inbox
+  console.log("load inbox");
   load_mailbox('inbox');
   
 });
@@ -25,15 +23,16 @@ function compose_email() {
   document.querySelector('#compose-subject').value = '';
   document.querySelector('#compose-body').value = '';
 
-  //event listiner to send mail
+  //event listner to send mail
   document.getElementById("send-email").addEventListener('click', () => {
     sendmail();
+    console.log("sent mail functioned called");
     load_mailbox('sent');
-  });
-  
-}
+    });
+  }
 
   function sendmail(){
+
             fetch('/emails', {
               method: 'POST',
               body: JSON.stringify({
@@ -44,13 +43,11 @@ function compose_email() {
             }) 
             .then(response => response.json())
             .then(result => {
-                // Print result
                 console.log(result);
-                debugger;
             })
             .catch((error) => {
               console.error('Error:', error);
-         });
+         }); 
   }
  
 
@@ -63,5 +60,4 @@ function load_mailbox(mailbox) {
   // Show the mailbox name
   document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
   console.log(mailbox);
-  debugger;
 }
