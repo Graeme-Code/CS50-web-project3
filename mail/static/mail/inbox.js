@@ -1,3 +1,6 @@
+
+
+
 document.addEventListener('DOMContentLoaded', function() {
 
   // Use buttons to toggle between views
@@ -11,8 +14,6 @@ document.addEventListener('DOMContentLoaded', function() {
   load_mailbox('inbox');
   
 });
-
-console.log(user);
 
 function compose_email() {
 
@@ -60,11 +61,17 @@ function load_mailbox(mailbox) {
 
   // Show the mailbox name
   document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
-  console.log(mailbox);
-  getmail(mailbox);
-  //generate div
-
+  
+  //get the mailbox name
+  var mailboxname = mailbox;
+  console.log(mailboxname);
+  //create new div based on mailbox name. 
+  var element = document.getElementById('emails');
+  console.log(element);
+  element.setAttribute("Id", mailboxname);
+  
 }
+
 
   //function for getting mailbox mails
   function getmail(mailbox) {
@@ -80,12 +87,12 @@ function load_mailbox(mailbox) {
           //var mailbox_length = emails.length;
           //var email;
           //get user name 
-          user = document.getElementById("logged_in_user").innerHTML;
+          var user = document.getElementById("logged_in_user").innerHTML;
           console.log(user);
           //console.log(mailbox_length);
-          sentmails = [];
-          inboxmails = [];
-          archive = [];
+          var sentmails = [];
+          var inboxmails = [];
+          var archive = [];
           // need to sort data based on mail box. Inbox is emails recieved, sent is emails sent. trying an if statment
           if (mailbox === 'inbox') {
             console.log(mailbox);
@@ -104,7 +111,9 @@ function load_mailbox(mailbox) {
                 if (emails[email].sender == user) {
                   //append object to an array
                   sentmails.push(emails[email]);
+                  //emaildivs(emails[email]);
                 }
+
              } 
           } else if ( mailbox === 'archive' ) {
             console.log(mailbox);
@@ -117,10 +126,33 @@ function load_mailbox(mailbox) {
            } 
           }
     });
-    
   }
 
   //build and populate email div
-  function emaildivs(emails){
-
+  function emaildivs(email){
+    const element = document.createElement('div');
+    //add an CSS class for styling and formatting. 
+    element.id = "emailpreview";
+    //element.style.emailpreview;
+    element.className += "emailPreview";
+    //add a nested div
+    const subject = document.createElement('p')
+    const timestamp = document.createElement('p')
+    const sender = document.createElement('p')
+    
+    sender.innerHTML = email.sender;
+    subject.innerHTML = email.subject;
+    timestamp.innerHTML = email.timestamp;
+    //element.innerHTML = email.timestamp;
+    element.addEventListener('click', function() {
+        console.log('This element has been clicked!')
+    });
+    document.getElementById('emails-view').append(element);
+    document.getElementById('emailpreview').appendChild(sender)
+    document.getElementById('emailpreview').appendChild(subject)
+    document.getElementById('emailpreview').appendChild(timestamp)
   }
+
+
+
+

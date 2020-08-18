@@ -30,8 +30,64 @@
             <input id="send-email" type="button" value="Send" class="btn btn-primary"/>
         </form>
     </div>
+
+
+    <!-- Trying a div to render email divs based on the mailbox -->
+    
+
+    <div id="emails"></div>
+    <script type="text/babel">
+        class App extends React.Component {
+            
+          constructor(props) { //becasue OOP
+          super(props);
+          this.state = { //this state has key and value, needs to be setup on creation.
+            emails: []
+
+          };
+        }
+    
+     //try this https://blog.logrocket.com/patterns-for-data-fetching-in-react-981ced7e5c56/
+     //and this https://www.pluralsight.com/guides/fetching-data-updating-state-react-class
+            
+    componentDidMount() {
+        fetch('/emails/inbox')
+            .then(response => response.json())
+            .then(emails => {
+                this.setState({emails: emails});
+                
+                // Print email
+                console.log(emails);
+
+                },
+                )        
+            }
+
+            render() {
+                return (
+                    <ul>
+                    {this.state.emails.map((email) =>
+                        (
+                            <li key={email.id} className="emailPreview">
+                                Sender: {email.sender}, 
+                                Subject: {email.subject}, 
+                                Timestamp: {email.timestamp}</li>
+                        ))}
+                    </ul> 
+                )};           
+        }
+    
+    ReactDOM.render(<App />, document.querySelector('#emails'))
+    </script>
+
+
+
 {% endblock %}
 
 {% block script %}
     <script src="{% static 'mail/inbox.js' %}"></script>
+    <!-- Load react -->
+    <script src="https://unpkg.com/react@16/umd/react.development.js" crossorigin=""></script>
+    <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin=""></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
 {% endblock %}
