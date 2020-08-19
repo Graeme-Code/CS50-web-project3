@@ -61,15 +61,12 @@ function load_mailbox(mailbox) {
 
   // Show the mailbox name
   document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
+
+  document.getElementById("emails").setAttribute('name', mailbox);
   
-  //get the mailbox name
-  var mailboxname = mailbox;
-  console.log(mailboxname);
-  //create new div based on mailbox name. 
-  var element = document.getElementById('emails');
-  console.log(element);
-  element.setAttribute("Id", mailboxname);
-  
+  //console.log(document.getElementById("emails"));
+  //element.setAttribute("id", mailboxname);
+  //console.log(element);
 }
 
 

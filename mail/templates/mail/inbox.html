@@ -35,7 +35,8 @@
     <!-- Trying a div to render email divs based on the mailbox -->
     
 
-    <div id="emails"></div>
+    <div id="emails" name="inbox">
+    </div>
     <script type="text/babel">
         class App extends React.Component {
             
@@ -51,7 +52,7 @@
      //and this https://www.pluralsight.com/guides/fetching-data-updating-state-react-class
             
     componentDidMount() {
-        fetch('/emails/inbox')
+        fetch('/emails/' + this.props.mailbox)
             .then(response => response.json())
             .then(emails => {
                 this.setState({emails: emails});
@@ -77,7 +78,8 @@
                 )};           
         }
     
-    ReactDOM.render(<App />, document.querySelector('#emails'))
+    ReactDOM.render(<App mailbox={document.querySelector('#emails').getAttribute("name")}/>, document.querySelector('#emails'))
+    
     </script>
 
 
