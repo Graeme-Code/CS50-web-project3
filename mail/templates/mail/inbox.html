@@ -4,6 +4,7 @@
 {% block body %}
     <h2 id="logged_in_user">{{ request.user.email }}</h2>
 
+    <!-- ok so if these buttons are not rendered as react components we cant pass them methods -->
     <button class="btn btn-sm btn-outline-primary" id="inbox">Inbox</button>
     <button class="btn btn-sm btn-outline-primary" id="compose">Compose</button>
     <button class="btn btn-sm btn-outline-primary" id="sent">Sent</button>
@@ -14,6 +15,7 @@
     <div id="emails-view">
     </div>
 
+    <!-- composing a new email -->
     <div id="compose-view">
         <h3>New Email</h3>
         <form id="compose-form" >
@@ -32,13 +34,15 @@
     </div>
 
 
-    <!-- Trying a div to render email divs based on the mailbox -->
+    <!-- Divs to render react components -->
     
-
+    <div id="mailboxbuttons"></div>
     <div id="emails" name="inbox">
+
+
     </div>
     <script type="text/babel">
-        class App extends React.Component {
+        class Mailview extends React.Component {
             
           constructor(props) { //becasue OOP
           super(props);
@@ -61,7 +65,7 @@
                 console.log(emails);
 
                 },
-                )        
+              )        
             }
 
             render() {
@@ -75,12 +79,28 @@
                                 Timestamp: {email.timestamp}</li>
                         ))}
                     </ul> 
-                )};           
+                )};    
+        }       
+
+        //React class to render three buttons
+        //class mailboxbuttons extends React.Component
+        //So what andre recommend is renaming the app to emails view and then creating an app component that contains all three.
+        function App() {
+            return (
+                <div>
+                <Mailview mailbox="inbox" />
+                <Mailview mailbox="sent" />
+                <Mailview mailbox="archive" />
+                </div>
+            );
         }
     
-    ReactDOM.render(<App mailbox={document.querySelector('#emails').getAttribute("name")}/>, document.querySelector('#emails'))
     
+    //ReactDOM.render(<App mailbox={document.querySelector('#emails').getAttribute("name")}/>, document.querySelector('#emails'))
+    ReactDOM.render(<App />, document.querySelector('#emails'))
     </script>
+
+    
 
 
 
