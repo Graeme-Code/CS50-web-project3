@@ -1,19 +1,17 @@
 
-
-
-document.addEventListener('DOMContentLoaded', function() {
+//document.addEventListener('DOMContentLoaded', function() {
 
   // Use buttons to toggle between views
-  document.querySelector('#inbox').addEventListener('click', () => load_mailbox('inbox'));
-  document.querySelector('#sent').addEventListener('click', () => load_mailbox('sent'));
-  document.querySelector('#archived').addEventListener('click', () => load_mailbox('archive'));
-  document.querySelector('#compose').addEventListener('click', compose_email);
+  //document.querySelector('#inbox').addEventListener('click', () => load_mailbox('inbox'));
+  //document.querySelector('#sent').addEventListener('click', () => load_mailbox('sent'));
+  //document.querySelector('#archived').addEventListener('click', () => load_mailbox('archive'));
+  //document.querySelector('#compose').addEventListener('click', compose_email);
 
   // By default, load the inbox
-  console.log("load inbox");
-  load_mailbox('inbox');
+  //console.log("load inbox");
+  //load_mailbox('inbox');
   
-});
+//});
 
 function compose_email() {
 
@@ -149,6 +147,9 @@ function load_mailbox(mailbox) {
     document.getElementById('emailpreview').appendChild(subject)
     document.getElementById('emailpreview').appendChild(timestamp)
   }
+
+
+  //Can I import a react class from here? No for that I need a prod enviroment, lets leave this for next class. 
 
 
 

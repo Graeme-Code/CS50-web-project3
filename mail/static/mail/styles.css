@@ -2,12 +2,27 @@ textarea {
     min-height: 400px;
 }
 
-.emailPreview {
+.emailPreviewRead {
     background-color: tomato;
-    color: white;
+    color: black;
     border: 2px solid black;
     margin: 20px;
     padding: 20px;
     left:0;
     right:0;
 }
+
+.emailPreviewUnRead {
+    background-color:white;
+    color: black;
+    border: 2px solid black;
+    margin: 20px;
+    padding: 20px;
+    left:0;
+    right:0;
+}
+
+.btn-group.special {
+    display: flex;
+  }
+  

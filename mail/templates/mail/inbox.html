@@ -4,18 +4,24 @@
 {% block body %}
     <h2 id="logged_in_user">{{ request.user.email }}</h2>
 
-    <!-- ok so if these buttons are not rendered as react components we cant pass them methods -->
+    <!-- ok so if these buttons are not rendered as react components we cant pass them methods, so I'm going to comment them out 
     <button class="btn btn-sm btn-outline-primary" id="inbox">Inbox</button>
     <button class="btn btn-sm btn-outline-primary" id="compose">Compose</button>
     <button class="btn btn-sm btn-outline-primary" id="sent">Sent</button>
     <button class="btn btn-sm btn-outline-primary" id="archived">Archived</button>
+    -->
     <a class="btn btn-sm btn-outline-primary" href="{% url 'logout' %}">Log Out</a>
     <hr>
 
-    <div id="emails-view">
+    <div id="featurebuttons" class="d-flex justify-content-between">
+        <div id = "inboxbutton"></div>
+        <div id = "composebutton"></div>
+        <div id = "sentbutton"></div>
+        <div id = "archivebutton"></div>
     </div>
+    <hr>
 
-    <!-- composing a new email -->
+    <!-- composing a new email 
     <div id="compose-view">
         <h3>New Email</h3>
         <form id="compose-form" >
@@ -32,15 +38,12 @@
             <input id="send-email" type="button" value="Send" class="btn btn-primary"/>
         </form>
     </div>
+-->
 
+    <!-- 
 
-    <!-- Divs to render react components -->
-    
-    <div id="mailboxbuttons"></div>
-    <div id="emails" name="inbox">
+    If I'm going to do this properly, I've got to split up my files for readability - nope turns out that not possible with my testing setup. 
 
-
-    </div>
     <script type="text/babel">
         class Mailview extends React.Component {
             
@@ -99,6 +102,129 @@
     //ReactDOM.render(<App mailbox={document.querySelector('#emails').getAttribute("name")}/>, document.querySelector('#emails'))
     ReactDOM.render(<App />, document.querySelector('#emails'))
     </script>
+    -->
+
+    <!-- Reaact code for feauture buttons-->
+    <script type="text/babel">
+    
+    class View extends React.Component {
+        constructor(props) { //becasue OOP
+          super(props);
+          this.state = { //this state has key and value, needs to be setup on creation.
+            activebutton: 'inbox',
+          };
+         this.activeButton = this.activeButton.bind(this);
+        }
+
+        activeButton = (view,e) => {
+            console.log(view);
+            console.log(e);
+            console.log(this.state.activebutton);
+            this.setState({
+                activebutton: view,
+            }) 
+            
+        }
+
+        render(){
+            return(
+            <div>
+            <div className="d-flex justify-content-between">
+            <ViewButton view = 'inbox' onClick={this.activeButton}/> 
+            <ViewButton view = 'sent' onClick={this.activeButton}/>
+            <ViewButton view = 'archive' onClick={this.activeButton}/>
+            </div>
+            <div>
+            <EmailsPreview mailbox={this.state.activebutton}/>
+            </div>
+            </div>
+            );
+        }
+
+    }
+    
+    function ViewButton (props) {
+           return (
+           <div>
+           <button className="btn btn-sm btn-outline-primary" onClick={(e) => props.onClick(props.view, e)} >{props.view.charAt(0).toUpperCase() + props.view.slice(1)}</button>
+           </div>
+           );
+        }
+    
+
+    class EmailsPreview extends React.Component {
+        
+        constructor(props) { //becasue OOP
+          super(props);
+          this.state = { //this state has key and value, needs to be setup on creation.
+            emails: []
+
+          };
+        }
+
+        componentDidMount() {
+        fetch('/emails/' + this.props.mailbox)
+            .then(response => response.json())
+            .then(emails => {
+                this.setState({emails: emails});
+                
+                // Print email
+                console.log(emails);
+
+                },
+              )        
+            }
+            
+        componentDidUpdate(prevProps, prevState, snapshot){
+            console.log(this.props.mailbox)
+            console.log(prevProps.mailbox)
+            if (this.props.mailbox != prevProps.mailbox){
+                fetch('/emails/' + this.props.mailbox)
+            .then(response => response.json())
+            .then(emails => {
+                this.setState({emails: emails});
+                
+                // Print email
+                console.log(emails);
+
+                },
+              ) 
+            }
+        }
+
+        
+        render() {
+            return(
+            <div>
+            <h2>{this.props.mailbox}</h2>
+            <ul>
+                    {this.state.emails.map((email) =>
+                        ( 
+                            
+                            <li key={email.id} className={email.read ? 'emailPreviewRead' : 'emailPreviewUnRead'}>
+                                Sender: {email.sender}, 
+                                Subject: {email.subject}, 
+                                Timestamp: {email.timestamp}</li>
+                            
+                                ))}
+                    </ul> 
+                </div>
+                )};  
+
+        
+
+
+    }
+
+
+   
+
+
+    ReactDOM.render(<View />, document.getElementById('featurebuttons'));
+    //compose button would be a different feature
+    //ReactDOM.render(<FeatureButton mailbox = "compose"/>, document.getElementById('composebutton'));
+    </script>
+
 
     
 
