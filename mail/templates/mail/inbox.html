@@ -133,6 +133,7 @@
             <ViewButton view = 'inbox' onClick={this.activeButton}/> 
             <ViewButton view = 'sent' onClick={this.activeButton}/>
             <ViewButton view = 'archive' onClick={this.activeButton}/>
+            <ViewButton view = 'compose' onClick={this.activeButton}/>
             </div>
             <div>
             <EmailsPreview mailbox={this.state.activebutton}/>
@@ -157,7 +158,8 @@
         constructor(props) { //becasue OOP
           super(props);
           this.state = { //this state has key and value, needs to be setup on creation.
-            emails: []
+            emails: [],
+            show: true,
 
           };
         }
@@ -166,7 +168,10 @@
         fetch('/emails/' + this.props.mailbox)
             .then(response => response.json())
             .then(emails => {
-                this.setState({emails: emails});
+                this.setState({
+                    emails: emails,
+                    show: true,
+                });
                 
                 // Print email
                 console.log(emails);
@@ -178,11 +183,22 @@
         componentDidUpdate(prevProps, prevState, snapshot){
             console.log(this.props.mailbox)
             console.log(prevProps.mailbox)
-            if (this.props.mailbox != prevProps.mailbox){
+            //Think need logic here to detect if active button is something other than a mailbox. and if so hide the div.
+            if (this.props.mailbox != 'inbox' && this.props.mailbox != 'sent' && this.props.mailbox != 'archive' && this.state.show == true){
+                console.log("not a mailbox");
+                this.setState({
+                    show: false, 
+                });
+                //setting state here is sending it into a infinite loop because its been re-rendered. 
+            }
+            else if (this.props.mailbox != prevProps.mailbox){
                 fetch('/emails/' + this.props.mailbox)
             .then(response => response.json())
             .then(emails => {
-                this.setState({emails: emails});
+                this.setState({
+                    emails: emails,
+                    show: true,
+                });
                 
                 // Print email
                 console.log(emails);
@@ -194,8 +210,9 @@
 
         
         render() {
+            console.log(this.state.show);
             return(
-            <div>
+            <div style={this.state.show ? 'show' : 'hide'} >
             <h2>{this.props.mailbox}</h2>
             <ul>
                     {this.state.emails.map((email) =>

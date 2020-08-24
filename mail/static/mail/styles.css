@@ -3,7 +3,7 @@ textarea {
 }
 
 .emailPreviewRead {
-    background-color: tomato;
+    background-color: grey;
     color: black;
     border: 2px solid black;
     margin: 20px;
@@ -26,3 +26,10 @@ textarea {
     display: flex;
   }
   
+.hide {
+    display: none;
+}
+
+.show {
+    display: block;
+}
