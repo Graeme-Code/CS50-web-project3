@@ -114,6 +114,7 @@
             activebutton: 'inbox',
           };
          this.activeButton = this.activeButton.bind(this);
+         this.setView = this.setView.bind(this);
         }
 
         activeButton = (view,e) => {
@@ -126,18 +127,27 @@
             
         }
 
+        setView =(view) => {
+            this.setState({
+                activebutton: view,
+            })
+        }
+
         render(){
             return(
             <div>
-            <div className="d-flex justify-content-between">
-            <ViewButton view = 'inbox' onClick={this.activeButton}/> 
-            <ViewButton view = 'sent' onClick={this.activeButton}/>
-            <ViewButton view = 'archive' onClick={this.activeButton}/>
-            <ViewButton view = 'compose' onClick={this.activeButton}/>
-            </div>
-            <div>
-            <EmailsPreview mailbox={this.state.activebutton}/>
-            </div>
+                <div className="d-flex justify-content-between">
+                    <ViewButton view = 'inbox' onClick={this.activeButton}/> 
+                    <ViewButton view = 'sent' onClick={this.activeButton}/>
+                    <ViewButton view = 'archive' onClick={this.activeButton}/>
+                    <ViewButton view = 'compose' onClick={this.activeButton}/>
+                </div>
+                <div>
+                    <EmailsPreview mailbox={this.state.activebutton}/>
+                </div>
+                <div>
+                    <ComposeMail button={this.state.activebutton} setview={this.setView}/>
+                </div>
             </div>
             );
         }
@@ -208,11 +218,10 @@
             }
         }
 
-        
         render() {
             console.log(this.state.show);
             return(
-            <div style={this.state.show ? 'show' : 'hide'} >
+            <div className={this.state.show ? 'show' : 'hide'} >
             <h2>{this.props.mailbox}</h2>
             <ul>
                     {this.state.emails.map((email) =>
@@ -227,10 +236,130 @@
                     </ul> 
                 </div>
                 )};  
+    }
+
+    class ComposeMail extends React.Component {
+        constructor(props) { //becasue OOP
+          super(props);
+          this.state = { //this state has key and value, needs to be setup on creation.
+            show: false,
+            sender: "{{request.user.email}}",
+            receiver: '',
+            subject:'',
+            body:'',
+          };
+        }
+
+        componentDidUpdate(prevProps, prevState, snapshot){
+            if(this.props.button == 'compose' && prevState.show == false) {
+                this.setState({
+                  show: true,
+                });
+               console.log(this.state.show);
+                  } else if(this.props.button != 'compose' && prevState.show == true) {
+                     this.setState({
+                     show: false,
+                })
+                }
+            }
+        
+            handleSender = (event) => {
+                this.setState({
+                    sender: event.target.value
+                })
+            }  
+            
+            handleReciever = (event) => {
+                this.setState({
+                    reciever: event.target.value
+                })
+            }  
+            
+            handleSubject = (event) => {
+                this.setState({
+                    subject: event.target.value
+                })
+            }   
+
+            handleBody = (event) => {
+                this.setState({
+                    body: event.target.value
+                })
+            }   
+
+            handleSubmit = (event) => {
+                //alert(`${this.state.reciever} ${this.state.sender} ${this.state.body}`)
+                        fetch('/emails', {
+                            method: 'POST',
+                            body: JSON.stringify({
+                                recipients: this.state.reciever,
+                                subject: this.state.subject,
+                                body: this.state.body
+                            }) 
+                            }) 
+                            .then(response => response.json())
+                            .then(result => {
+                                console.log(result);
+                            })
+                            .then(() => 
+                            load_mailbox('sent')
+                            )
+                            .catch((error) => {
+                            console.error('Error:', error);
+                        }); 
+                event.preventDefault()
+                //Hide the component
+                this.setState({
+                    show:false,
+                })
+                //Show the sent mailbox 
+                this.props.setview('sent');
+
+            }   
 
         
-
-
+        render() {
+            console.log("this is the state of compose show")
+            console.log(this.state.show)
+            return (
+                <div className={this.state.show ? 'show' : 'hide'} >
+                    <form onSubmit={this.handleSubmit}>
+                        <div className="form-group">
+                            <label>From:</label>
+                            <input 
+                                type="text"
+                                value = "{{request.user.email}}"
+                                />
+                            </div>
+                            <div className="form-group">
+                            <label>To:</label>
+                            <input 
+                                type="text"
+                                value={this.state.reciever}
+                                onChange={this.handleReciever}
+                            />
+                            </div>
+                            <div className="form-group">
+                            <label>Subject</label>
+                            <input 
+                                type="text"
+                                value={this.state.subject}
+                                onChange={this.handleSubject}
+                            />
+                            </div>
+                            <div className="form-group">
+                                <label>Body</label>
+                                <textarea
+                                type = "text"
+                                value = {this.state.body}
+                                onChange = {this.handleBody}
+                                />  
+                            </div>
+                        <button type='submit'>Send</button>
+                    </form>
+                </div>
+            )
+        }
     }
 
 

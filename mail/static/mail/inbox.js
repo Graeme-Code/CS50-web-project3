@@ -28,27 +28,27 @@ function compose_email() {
   document.getElementById("send-email").addEventListener('click', sendmail);
   }
 
-  function sendmail(){
-
-            fetch('/emails', {
-              method: 'POST',
-              body: JSON.stringify({
-                  recipients: document.querySelector('#compose-recipients').value,
-                  subject: document.querySelector('#compose-subject').value,
-                  body: document.querySelector('#compose-body').value
-              }) 
-            }) 
-            .then(response => response.json())
-            .then(result => {
-                console.log(result);
-            })
-            .then(() => 
-             load_mailbox('sent')
-            )
-            .catch((error) => {
-              console.error('Error:', error);
-         }); 
-  }
+  //function sendmail(){
+//
+   //         fetch('/emails', {
+    //          method: 'POST',
+     //         body: JSON.stringify({
+   //               recipients: document.querySelector('#compose-recipients').value,
+    //              subject: document.querySelector('#compose-subject').value,
+     //             body: document.querySelector('#compose-body').value
+     //         }) 
+     //       }) 
+     //       .then(response => response.json())
+    //        .then(result => {
+    //            console.log(result);
+     //       })
+    //        .then(() => 
+     //        load_mailbox('sent')
+      //      )
+      //      .catch((error) => {
+      //        console.error('Error:', error);
+     //    }); 
+ // }
  
 
 function load_mailbox(mailbox) {
