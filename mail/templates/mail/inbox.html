@@ -238,7 +238,6 @@
           };
         }
 
-
         componentDidUpdate(prevProps, prevState, snapshot){ 
             var replysubject =  'Re: ' + this.props.subject;
             var replybody = 'On ' + this.props.timestamp + ' ' + this.props.sender + 'wrote:  ' + this.props.body;
@@ -258,11 +257,11 @@
                   body: replybody,
                   
                 })
-                  } else if(this.props.activebutton != 'compose' && prevState.show == true) {
+                  } else if ((this.props.activebutton != 'compose' && this.props.activebutton != 'reply') && prevState.show == true) {
                      this.setState({
                      show: false,
                 })
-                }
+                } 
             }
         
             handleSender = (event) => {
