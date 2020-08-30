@@ -4,12 +4,6 @@
 {% block body %}
     <h2 id="logged_in_user">{{ request.user.email }}</h2>
 
-    <!-- ok so if these buttons are not rendered as react components we cant pass them methods, so I'm going to comment them out 
-    <button class="btn btn-sm btn-outline-primary" id="inbox">Inbox</button>
-    <button class="btn btn-sm btn-outline-primary" id="compose">Compose</button>
-    <button class="btn btn-sm btn-outline-primary" id="sent">Sent</button>
-    <button class="btn btn-sm btn-outline-primary" id="archived">Archived</button>
-    -->
     <a class="btn btn-sm btn-outline-primary" href="{% url 'logout' %}">Log Out</a>
     <hr>
 
@@ -20,89 +14,6 @@
         <div id = "archivebutton"></div>
     </div>
     <hr>
-
-    <!-- composing a new email 
-    <div id="compose-view">
-        <h3>New Email</h3>
-        <form id="compose-form" >
-            <div class="form-group">
-                From: <input disabled class="form-control" value="{{ request.user.email }}">
-            </div>
-            <div class="form-group">
-                To: <input id="compose-recipients" class="form-control">
-            </div>
-            <div class="form-group">
-                <input class="form-control" id="compose-subject" placeholder="Subject">
-            </div>
-            <textarea class="form-control" id="compose-body" placeholder="Body"></textarea>
-            <input id="send-email" type="button" value="Send" class="btn btn-primary"/>
-        </form>
-    </div>
--->
-
-    <!-- 
-
-    If I'm going to do this properly, I've got to split up my files for readability - nope turns out that not possible with my testing setup. 
-
-    <script type="text/babel">
-        class Mailview extends React.Component {
-            
-          constructor(props) { //becasue OOP
-          super(props);
-          this.state = { //this state has key and value, needs to be setup on creation.
-            emails: []
-
-          };
-        }
-    
-     //try this https://blog.logrocket.com/patterns-for-data-fetching-in-react-981ced7e5c56/
-     //and this https://www.pluralsight.com/guides/fetching-data-updating-state-react-class
-            
-    componentDidMount() {
-        fetch('/emails/' + this.props.mailbox)
-            .then(response => response.json())
-            .then(emails => {
-                this.setState({emails: emails});
-                
-                // Print email
-                console.log(emails);
-
-                },
-              )        
-            }
-
-            render() {
-                return (
-                    <ul>
-                    {this.state.emails.map((email) =>
-                        (
-                            <li key={email.id} className="emailPreview">
-                                Sender: {email.sender}, 
-                                Subject: {email.subject}, 
-                                Timestamp: {email.timestamp}</li>
-                        ))}
-                    </ul> 
-                )};    
-        }       
-
-        //React class to render three buttons
-        //class mailboxbuttons extends React.Component
-        //So what andre recommend is renaming the app to emails view and then creating an app component that contains all three.
-        function App() {
-            return (
-                <div>
-                <Mailview mailbox="inbox" />
-                <Mailview mailbox="sent" />
-                <Mailview mailbox="archive" />
-                </div>
-            );
-        }
-    
-    
-    //ReactDOM.render(<App mailbox={document.querySelector('#emails').getAttribute("name")}/>, document.querySelector('#emails'))
-    ReactDOM.render(<App />, document.querySelector('#emails'))
-    </script>
-    -->
 
     <!-- React code for feauture buttons-->
     <script type="text/babel">
@@ -144,7 +55,6 @@
 
         handleReadMail = (view, sender, subject, body, timestamp, id, read, archived, recepiant, event) => {
              //make a logic to check if read and if not send request to mailbox
-             console.log("This is the ID been used to update state when hendle read email is tapped " + id)
             if(read != true) {
              fetch('/emails/' + id, {
                             method: 'PUT',
@@ -170,9 +80,6 @@
 
         //handle updating of archived status, then redirect to inbox. Ok the ID is ubdefined! Fix it
          handleArchivedChange = (id, e) => {
-            console.log("This is the ID been passed to the handlearchivedchange function " + id);
-            console.log("This is the event been passed to the handlearchivedchange function " + e);
-            console.log("This is the archived state " + this.state.archived);
             fetch('/emails/' + id, {
                             method: 'PUT',
                             body: JSON.stringify({
@@ -191,7 +98,6 @@
 
 
         render(){
-            console.log("the active button is" + this.state.activebutton)
             return(
             <div>
                 <div className="d-flex justify-content-between">
@@ -258,7 +164,6 @@
         }
 
         componentDidMount() {
-        console.log("component did mount emails preview firing")
         fetch('/emails/' + this.props.mailbox)
             .then(response => response.json())
             .then(emails => {
@@ -275,11 +180,6 @@
             }
             
         componentDidUpdate(prevProps, prevState, snapshot){
-            console.log("component did Update emails preview firing")
-            console.log(this.props.mailbox)
-            console.log(this.state.show)
-            console.log(prevProps.mailbox)
-
             if ((this.props.mailbox == 'inbox' || this.props.mailbox == 'sent' || this.props.mailbox == 'archive') && (this.props.mailbox != prevProps.mailbox)) {
                 console.log("fetching emails!")
                 fetch('/emails/' + this.props.mailbox)
@@ -296,7 +196,6 @@
                 },
               ) 
              } else if ((this.props.mailbox != 'inbox' && this.props.mailbox != 'sent' && this.props.mailbox != 'archive') && this.state.show == true) {
-                 console.log("else statement triggered")
                 this.setState({
                    show: false, 
                 });
@@ -307,23 +206,22 @@
             }
 
         render() {
-            console.log(this.state.show);
             return(
             <div className={this.state.show ? 'show' : 'hide'}> 
             <h2>{this.props.mailbox}</h2>
-            <ul>
+            <div>
                     {this.state.emails.map((email) =>
                         ( 
                             
-                            <li key={email.id} className={email.read ? 'emailPreviewRead' : 'emailPreviewUnRead'}>
+                            <div key={email.id} className={email.read ? 'emailPreviewRead' : 'emailPreviewUnRead'}>
                                 Sender: {email.sender}, 
                                 Subject: {email.subject}, 
                                 Timestamp: {email.timestamp}
                                 <button onClick={(e) => this.props.handlereadmail('viewmail', email.sender, email.subject, email.body, email.timestamp, email.id, email.read, email.archived, email.recipients, e)}>View mail</button> 
-                                </li>
+                                </div>
                                 ))}
                                 
-                    </ul> 
+                    </div> 
                 </div>
                 )};  
     }
@@ -340,19 +238,12 @@
           };
         }
 
-        //FOR TOMORROW, HANDLING THE REPLY FEATURE:
-        //1. PASS RECIEPANT AND SUBJECT TO COMPOSE COMPONENT 
-        //2. IF THE PREV VIEW WAS == 'viewemail', SET STATE WITH PROPS. Ok this doesnt quite work because of a logic issue in if statement. 
-        //3. IF THAT WORKS ALL THE HANDLE REPLY BUTTON NEEDS TO DO IS CHANGE VIEW 
 
-        componentDidUpdate(prevProps, prevState, snapshot){ //fix logic problem here 
-            console.log("The active button right now in the Compose Componet is " + this.props.activebutton)
-            console.log("The prev active button in Compose Componet is " + prevProps.activebutton)
-            console.log("the previous show state for Compose Component is " + this.state.show)
+        componentDidUpdate(prevProps, prevState, snapshot){ 
             var replysubject =  'Re: ' + this.props.subject;
             var replybody = 'On ' + this.props.timestamp + ' ' + this.props.sender + 'wrote:  ' + this.props.body;
             
-            if(this.props.activebutton == 'compose' && this.props.activebutton != prevProps.activebutton) {  //prevState.show == false
+            if(this.props.activebutton == 'compose' && this.props.activebutton != prevProps.activebutton) {  
                 this.setState({
                   show: true,
                   receiver: '',
@@ -360,7 +251,6 @@
                   body:'',
                 })
                   } else if (this.props.activebutton == 'reply' && this.props.activebutton != prevProps.activebutton){
-                    console.log("HEY! HEY! THIS IS THE VALUE OF SENDER PROP" + this.props.sender)
                     this.setState({
                   show: true,
                   receiver: this.props.sender,
@@ -383,7 +273,7 @@
             
             handleReciever = (event) => {
                 this.setState({
-                    reciever: event.target.value
+                    receiver: event.target.value  
                 })
             }  
             
@@ -430,8 +320,6 @@
 
         
         render() {
-            console.log("this is the state of compose show")
-            console.log(this.state.show)
             return (
                 <div className={this.state.show ? 'show' : 'hide'} >
                     <h2>{this.props.activebutton}</h2>
@@ -485,17 +373,12 @@
         }
 
         componentDidMount(){
-            console.log("View mail component mounted!")
         }
 
         componentDidUpdate(prevProps, prevState, snapshot){
-            console.log("The active button right now in the Email View Componet is " + this.props.button)
-            console.log("The prev active button is " + prevProps.button)
-            console.log("the previous show state for Email View is " + this.state.show)
+            
             //come up with logic to let this component know when it was click on from inbox, thinking to set it to state so componet knows. 
-
             if (this.props.button == "viewmail" && this.props.button != prevProps.button){
-            console.log("Read Email Show State will to True");
             this.setState({
                 show: true,
                 frommailbox: prevProps.button,
@@ -504,7 +387,6 @@
                 this.setState({
                     show: false,
                 })
-                    console.log("Read Email Show State should remain as " + this.state.show)
             }
         }
 
