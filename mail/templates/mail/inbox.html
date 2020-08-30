@@ -104,7 +104,7 @@
     </script>
     -->
 
-    <!-- Reaact code for feauture buttons-->
+    <!-- React code for feauture buttons-->
     <script type="text/babel">
     
     class View extends React.Component {
@@ -112,9 +112,18 @@
           super(props);
           this.state = { //this state has key and value, needs to be setup on creation.
             activebutton: 'inbox',
+            subject:'',
+            body:'',
+            timestamp:'',
+            reciever:'',
+            sender:'',
+            archived:'',
+            id:'',
           };
          this.activeButton = this.activeButton.bind(this);
          this.setView = this.setView.bind(this);
+         this.handleReadMail = this.handleReadMail.bind(this);
+         this.handleArchivedChange = this.handleArchivedChange.bind(this);
         }
 
         activeButton = (view,e) => {
@@ -133,7 +142,56 @@
             })
         }
 
+        handleReadMail = (view, sender, subject, body, timestamp, id, read, archived, recepiant, event) => {
+             //make a logic to check if read and if not send request to mailbox
+             console.log("This is the ID been used to update state when hendle read email is tapped " + id)
+            if(read != true) {
+             fetch('/emails/' + id, {
+                            method: 'PUT',
+                            body: JSON.stringify({
+                                read: true
+                                }) 
+                            }) 
+                        }
+            //set the state to display the email               
+            this.setState({
+                activebutton: view,
+                subject: subject,
+                body: body,
+                timestamp: timestamp,
+                sender: sender,
+                reciever: recepiant,
+                archived: archived,
+                id: id,
+                read: read,
+             })
+        }
+
+
+        //handle updating of archived status, then redirect to inbox. Ok the ID is ubdefined! Fix it
+         handleArchivedChange = (id, e) => {
+            console.log("This is the ID been passed to the handlearchivedchange function " + id);
+            console.log("This is the event been passed to the handlearchivedchange function " + e);
+            console.log("This is the archived state " + this.state.archived);
+            fetch('/emails/' + id, {
+                            method: 'PUT',
+                            body: JSON.stringify({
+                                archived: !this.state.archived
+                                }) 
+                            })
+                            .catch((error) => {
+                            console.error('Error:', error);
+                        }); 
+                            this.setState({
+                                activebutton: 'inbox'
+                            })
+                        }
+
+        
+
+
         render(){
+            console.log("the active button is" + this.state.activebutton)
             return(
             <div>
                 <div className="d-flex justify-content-between">
@@ -143,13 +201,13 @@
                     <ViewButton view = 'compose' onClick={this.activeButton}/>
                 </div>
                 <div>
-                    <EmailsPreview mailbox={this.state.activebutton} setview={this.setView}/>
+                    <EmailsPreview mailbox={this.state.activebutton} setview={this.setView} handlereadmail={this.handleReadMail}/>
                 </div>
                 <div>
-                    <ComposeMail button={this.state.activebutton} setview={this.setView}/>
+                    <ComposeMail activebutton={this.state.activebutton} setview={this.setView} sender={this.state.sender} subject={this.state.subject} timestamp={this.state.timestamp} body={this.state.body}/>
                 </div>
                 <div>
-                    <ViewMail />
+                    <ViewMail button={this.state.activebutton} sender={this.state.sender} reciever={this.state.reciever}  subject={this.state.subject} body={this.state.body} timestamp={this.state.timestamp} archived={this.state.archived} id={this.state.id} handlearchivedchange={this.handleArchivedChange} setview={this.setView}/>
                 </div>
             </div>
             );
@@ -164,6 +222,28 @@
            </div>
            );
         }
+
+    //define and bind functions to update archive status in the View class and pass it to the view email componenet. 
+    function ArchiveButton (props) {
+        return (
+            <div>
+                {props.archived
+                 ? <button onClick={(e) => {props.handlearchivedchange(props.id, e)}}>UnArchive</button>
+                : <button onClick={(e) => {props.handlearchivedchange(props.id, e)}}>Archive</button>
+                }
+                
+            </div>
+        );
+    }
+
+    //define a function to trigger Compose button with props
+    function ReplyButton (props) {
+       return(
+        <div>
+            <button onClick={(e) =>{props.setview('reply', e)}}>Reply</button>
+        </div>
+       );
+    }
     
 
     class EmailsPreview extends React.Component {
@@ -225,44 +305,11 @@
 
 
             }
-            
-            //Think need logic here to detect if active button is something other than a mailbox. and if so hide the div.
-            //if (this.props.mailbox != 'inbox' && this.props.mailbox != 'sent' && this.props.mailbox != 'archive' && this.state.show == true){
-            //    console.log("not a mailbox");
-            //    this.setState({
-            //        show: false, 
-            //    });
-            //    return;
-                //setting state here is sending it into a infinite loop because its been re-rendered. 
-            
-           // }
-           // else if (this.props.mailbox != prevProps.mailbox){
-           //     fetch('/emails/' + this.props.mailbox)
-          //  .then(response => response.json())
-           // .then(emails => {
-           //     this.setState({
-           //         emails: emails,
-           //         show: true,
-           //     });
-                
-                // Print email
-          //      console.log(emails);
-
-          //      },
-         //     ) 
-         //   }
-       // }
-
-        //An onClick Function to display and pass data to the ViewMail componenent
-        handleReadMail = () => {
-            this.props.setview('viewmail')
-            alert("hello")
-        }
 
         render() {
             console.log(this.state.show);
             return(
-            <div className={this.state.show ? 'show' : 'hide'} onClick={this.handleReadMail}>
+            <div className={this.state.show ? 'show' : 'hide'}> 
             <h2>{this.props.mailbox}</h2>
             <ul>
                     {this.state.emails.map((email) =>
@@ -271,8 +318,11 @@
                             <li key={email.id} className={email.read ? 'emailPreviewRead' : 'emailPreviewUnRead'}>
                                 Sender: {email.sender}, 
                                 Subject: {email.subject}, 
-                                Timestamp: {email.timestamp}</li>
+                                Timestamp: {email.timestamp}
+                                <button onClick={(e) => this.props.handlereadmail('viewmail', email.sender, email.subject, email.body, email.timestamp, email.id, email.read, email.archived, email.recipients, e)}>View mail</button> 
+                                </li>
                                 ))}
+                                
                     </ul> 
                 </div>
                 )};  
@@ -290,13 +340,35 @@
           };
         }
 
-        componentDidUpdate(prevProps, prevState, snapshot){
-            if(this.props.button == 'compose' && prevState.show == false) {
+        //FOR TOMORROW, HANDLING THE REPLY FEATURE:
+        //1. PASS RECIEPANT AND SUBJECT TO COMPOSE COMPONENT 
+        //2. IF THE PREV VIEW WAS == 'viewemail', SET STATE WITH PROPS. Ok this doesnt quite work because of a logic issue in if statement. 
+        //3. IF THAT WORKS ALL THE HANDLE REPLY BUTTON NEEDS TO DO IS CHANGE VIEW 
+
+        componentDidUpdate(prevProps, prevState, snapshot){ //fix logic problem here 
+            console.log("The active button right now in the Compose Componet is " + this.props.activebutton)
+            console.log("The prev active button in Compose Componet is " + prevProps.activebutton)
+            console.log("the previous show state for Compose Component is " + this.state.show)
+            var replysubject =  'Re: ' + this.props.subject;
+            var replybody = 'On ' + this.props.timestamp + ' ' + this.props.sender + 'wrote:  ' + this.props.body;
+            
+            if(this.props.activebutton == 'compose' && this.props.activebutton != prevProps.activebutton) {  //prevState.show == false
                 this.setState({
                   show: true,
-                });
-               console.log(this.state.show);
-                  } else if(this.props.button != 'compose' && prevState.show == true) {
+                  receiver: '',
+                  subject:'',
+                  body:'',
+                })
+                  } else if (this.props.activebutton == 'reply' && this.props.activebutton != prevProps.activebutton){
+                    console.log("HEY! HEY! THIS IS THE VALUE OF SENDER PROP" + this.props.sender)
+                    this.setState({
+                  show: true,
+                  receiver: this.props.sender,
+                  subject: replysubject,
+                  body: replybody,
+                  
+                })
+                  } else if(this.props.activebutton != 'compose' && prevState.show == true) {
                      this.setState({
                      show: false,
                 })
@@ -332,7 +404,7 @@
                         fetch('/emails', {
                             method: 'POST',
                             body: JSON.stringify({
-                                recipients: this.state.reciever,
+                                recipients: this.state.receiver, 
                                 subject: this.state.subject,
                                 body: this.state.body
                             }) 
@@ -362,6 +434,7 @@
             console.log(this.state.show)
             return (
                 <div className={this.state.show ? 'show' : 'hide'} >
+                    <h2>{this.props.activebutton}</h2>
                     <form onSubmit={this.handleSubmit}>
                         <div className="form-group">
                             <label>From:</label>
@@ -374,7 +447,7 @@
                             <label>To:</label>
                             <input 
                                 type="text"
-                                value={this.state.reciever}
+                                value={this.state.receiver} 
                                 onChange={this.handleReciever}
                             />
                             </div>
@@ -407,28 +480,67 @@
           super(props);
           this.state = { //this state has key and value, needs to be setup on creation.
             show: false,
-            sender: "{{request.user.email}}",
-            receiver: '',
-            subject:'',
-            body:'',
+            frommailbox: '',
           };
+        }
+
+        componentDidMount(){
+            console.log("View mail component mounted!")
+        }
+
+        componentDidUpdate(prevProps, prevState, snapshot){
+            console.log("The active button right now in the Email View Componet is " + this.props.button)
+            console.log("The prev active button is " + prevProps.button)
+            console.log("the previous show state for Email View is " + this.state.show)
+            //come up with logic to let this component know when it was click on from inbox, thinking to set it to state so componet knows. 
+
+            if (this.props.button == "viewmail" && this.props.button != prevProps.button){
+            console.log("Read Email Show State will to True");
+            this.setState({
+                show: true,
+                frommailbox: prevProps.button,
+            }) 
+                } else if ((this.props.button != "viewmail") && prevState.show == true) {
+                this.setState({
+                    show: false,
+                })
+                    console.log("Read Email Show State should remain as " + this.state.show)
+            }
         }
 
 
         render(){
             return(
-                <div className={this.state.show ? 'show' : 'hide'}>
+                <div className={this.state.show ? 'show' : 'hide'}> 
                     <div>
-                        <p>From: {{request.user.email}} </p>
+                        <p>From: {this.props.sender}</p>
                     </div>
                     <div>
-                        <p>To: Example</p>
+                        <p>To: {this.props.reciever}</p>
                     </div>
                     <div>
-                        <p>Subject: Example</p>
+                        <p>Subject: {this.props.subject}</p>
                     </div>
                     <div>
-                        <p>Body: Example</p>
+                        <p>Body: {this.props.body}</p>
+                    </div>
+                    <div>
+                        <p>TimeStamp: {this.props.timestamp}</p>
+                    </div>
+                    <div>
+                        <p>ID: {this.props.id} </p>
+                    </div>
+                    <div>
+                        <p>Archived: {this.props.archived.toString()} </p>
+                    </div>
+                    <div>
+                        {((this.state.frommailbox == 'inbox') || (this.state.frommailbox == 'archive')) 
+                        ? <ArchiveButton archived={this.props.archived} id={this.props.id} handlearchivedchange={this.props.handlearchivedchange}/>
+                        : <div></div>
+                        }
+                    </div>
+                    <div>
+                    <ReplyButton setview={this.props.setview}/>
                     </div>
                 </div>
             )
